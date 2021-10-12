@@ -1,2 +1,3 @@
 pbr
 aprsd>=2.2.0
+tweepy

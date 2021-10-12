@@ -36,13 +36,30 @@ Send tweet via Ham RADIO!
 Features
 --------
 
-* TODO
+* Sent a tweet from your personal twitter account!
+* to tweet send a message of "t Hello World #aprs #hamradio"
 
 
 Requirements
 ------------
 
-* TODO
+* This plugin requires you have a twitter account and create a developer
+  account with:
+* api key
+* api key secret
+* access token
+* access token secret
+
+Add the following entries to the aprsd.yml file
+
+.. code:: yaml
+
+    services:
+      twitter:
+        apiKey: <your api key here>
+        apiKey_secret: <your api key secret here>
+        access_token: <your Twitter app access token>
+        access_token_secret: <your Twitter app access token secret>
 
 
 Installation
