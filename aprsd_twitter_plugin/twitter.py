@@ -10,12 +10,19 @@ LOG = logging.getLogger("APRSD")
 class SendTweetPlugin(plugin.APRSDRegexCommandPluginBase):
 
     version = "1.0"
-    # Look for any command that starts with w or W
-    command_regex = "^[tT]"
+    # Look for any command that starts with tw or tW or TW or Tw
+    command_regex = "^[tT][wW]"
     # the command is for ?
     command_name = "tweet"
 
     enabled = False
+
+    def help(self):
+        _help = [
+            "twitter: Send a Tweet!!",
+            "twitter: Format 'tw <message>'",
+        ]
+        return _help
 
     def setup(self):
         # Do some checks here?
