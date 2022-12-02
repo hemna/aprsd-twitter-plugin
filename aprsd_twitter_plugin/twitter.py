@@ -1,7 +1,9 @@
 import logging
 
 import tweepy
-from aprsd import messaging, plugin, trace
+from aprsd import messaging, plugin
+
+import aprsd_twitter_plugin
 
 
 LOG = logging.getLogger("APRSD")
@@ -9,7 +11,7 @@ LOG = logging.getLogger("APRSD")
 
 class SendTweetPlugin(plugin.APRSDRegexCommandPluginBase):
 
-    version = "1.0"
+    version = aprsd_twitter_plugin.__version__
     # Look for any command that starts with tw or tW or TW or Tw
     command_regex = "^[tT][wW]"
     # the command is for ?
@@ -72,7 +74,6 @@ class SendTweetPlugin(plugin.APRSDRegexCommandPluginBase):
 
         return api
 
-    @trace.trace
     def process(self, packet):
 
         """This is called when a received packet matches self.command_regex."""
