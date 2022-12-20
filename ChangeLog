@@ -1,0 +1,18 @@
+CHANGES
+=======
+
+v0.3.0
+------
+
+* Added PBR Version
+
+v0.2.0
+------
+
+* Updated command to 'tw' from 't'. Added Help
+* First working version that tweets!
+
+v0.1.0
+------
+
+* Initial commit
