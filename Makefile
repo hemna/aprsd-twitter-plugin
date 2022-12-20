@@ -21,7 +21,7 @@ docs: build
 	cp Changelog docs/changelog.rst
 	tox -edocs
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+clean: clean-build clean-pyc clean-test clean-dev ## remove all build, test, coverage and Python artifacts
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -41,6 +41,10 @@ clean-test: ## remove test and coverage artifacts
 	rm -f .coverage
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
+
+clean-dev:
+	rm -rf $(VENVDIR)
+	rm Makefile.venv
 
 coverage: ## check code coverage quickly with the default Python
 	coverage run --source aprsd_twitter_plugin setup.py test

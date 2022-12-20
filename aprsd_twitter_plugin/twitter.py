@@ -1,7 +1,7 @@
 import logging
 
 import tweepy
-from aprsd import messaging, plugin
+from aprsd import packets, plugin
 
 import aprsd_twitter_plugin
 
@@ -80,8 +80,8 @@ class SendTweetPlugin(plugin.APRSDRegexCommandPluginBase):
 
         LOG.info("SendTweetPlugin Plugin")
 
-        from_callsign = packet.get("from")
-        message = packet.get("message_text", None)
+        from_callsign = packet.from_call
+        message = packet.message_text
         message = message.split(" ")
         del message[0]
         message = " ".join(message)
@@ -105,4 +105,4 @@ class SendTweetPlugin(plugin.APRSDRegexCommandPluginBase):
             return "Tweet sent!"
         else:
             LOG.warning("SendTweetPlugin is disabled.")
-            return messaging.NULL_MESSAGE
+            return packets.NULL_MESSAGE
