@@ -1,11 +1,15 @@
 import logging
 
 import tweepy
-from aprsd import packets, plugin
+from aprsd import conf  # noqa
+from aprsd import plugin
+from oslo_config import cfg
 
 import aprsd_twitter_plugin
+from aprsd_twitter_plugin import conf  # noqa
 
 
+CONF = cfg.CONF
 LOG = logging.getLogger("APRSD")
 
 
@@ -13,7 +17,8 @@ class SendTweetPlugin(plugin.APRSDRegexCommandPluginBase):
 
     version = aprsd_twitter_plugin.__version__
     # Look for any command that starts with tw or tW or TW or Tw
-    command_regex = "^[tT][wW]"
+    # or case insensitive version of 'twitter'
+    command_regex = r"^([t][w]\s|twitter)"
     # the command is for ?
     command_name = "tweet"
 
@@ -30,33 +35,52 @@ class SendTweetPlugin(plugin.APRSDRegexCommandPluginBase):
         # Do some checks here?
         self.enabled = True
 
+        if not CONF.aprsd_twitter_plugin.callsign:
+            LOG.error(
+                "No aprsd_twitter_pligin.callsign is set."
+                " Callsign is needed to allow tweets!",
+            )
+            self.enabled = False
+
         # Ensure the access token exists.
-        if not self.config.exists("services.twitter.apiKey"):
-            LOG.error("No services.twitter.apiKey exists. Plugin Disabled.")
+        if not CONF.aprsd_twitter_plugin.apiKey:
+            LOG.error(
+                "No aprsd_twitter_plugin.apiKey is set!."
+                " Plugin Disabled.",
+            )
             self.enabled = False
 
-        if not self.config.exists("services.twitter.apiKey_secret"):
-            LOG.error("No services.twitter.apiKey_secret exists. Plugin Disabled.")
+        if not CONF.aprsd_twitter_plugin.apiKey_secret:
+            LOG.error(
+                "No aprsd_twitter_plugin.apiKey_secret is set."
+                " Plugin Disabled.",
+            )
             self.enabled = False
 
-        if not self.config.exists("services.twitter.access_token"):
-            LOG.error("No services.twitter.access_token exists. Plugin Disabled.")
+        if not CONF.aprsd_twitter_plugin.access_token:
+            LOG.error(
+                "No aprsd_twitter_plugin.access_token exists."
+                " Plugin Disabled.",
+            )
             self.enabled = False
 
-        if not self.config.exists("services.twitter.access_token_secret"):
-            LOG.error("No services.twitter.access_token_secret exists. Plugin Disabled.")
+        if not CONF.aprsd_twitter_plugin.access_token_secret:
+            LOG.error(
+                "No aprsd_twitter_plugin.access_token_secret exists."
+                " Plugin Disabled.",
+            )
             self.enabled = False
 
     def _create_client(self):
         """Create the twitter client object."""
         auth = tweepy.OAuthHandler(
-            self.config.get("services.twitter.apiKey"),
-            self.config.get("services.twitter.apiKey_secret"),
+            CONF.aprsd_twitter_plugin.apiKey,
+            CONF.aprsd_twitter_plugin.apiKey_secret,
         )
 
         auth.set_access_token(
-            self.config.get("services.twitter.access_token"),
-            self.config.get("services.twitter.access_token_secret"),
+            CONF.aprsd_twitter_plugin.access_token,
+            CONF.aprsd_twitter_plugin.access_token_secret,
         )
 
         api = tweepy.API(
@@ -86,23 +110,25 @@ class SendTweetPlugin(plugin.APRSDRegexCommandPluginBase):
         del message[0]
         message = " ".join(message)
 
-        if self.enabled:
-            # Now we can process
-            mycall = self.config["ham"]["callsign"]
+        # Now we can process
+        auth_call = CONF.aprsd_twitter_plugin.callsign
 
-            # Only allow the owner of aprsd to send a tweet
-            if not from_callsign.startswith(mycall):
-                return "Unauthorized"
+        # Only allow the owner of aprsd to send a tweet
+        if not from_callsign.startswith(auth_call):
+            return f"{from_callsign} not authorized to tweet!"
 
-            client = self._create_client()
-            if not client:
-                LOG.error("No twitter client!!")
-                return "Failed to Auth"
+        client = self._create_client()
+        if not client:
+            LOG.error("No twitter client!!")
+            return "Failed to Auth"
 
-            # Now lets tweet!
-            client.update_status(message)
+        if CONF.aprsd_twitter_plugin.add_aprs_hashtag:
+            message += (
+                " #aprs #aprsd #hamradio "
+                "https://github.com/hemna/aprsd-twitter-plugin"
+            )
 
-            return "Tweet sent!"
-        else:
-            LOG.warning("SendTweetPlugin is disabled.")
-            return packets.NULL_MESSAGE
+        # Now lets tweet!
+        client.update_status(message)
+
+        return "Tweet sent!"
