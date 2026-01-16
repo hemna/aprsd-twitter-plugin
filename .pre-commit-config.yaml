@@ -1,23 +1,29 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v3.4.0
+  rev: v6.0.0
   hooks:
     - id: trailing-whitespace
     - id: end-of-file-fixer
     - id: check-yaml
-    - id: check-added-large-files
+    - id: check-json
     - id: detect-private-key
     - id: check-merge-conflict
     - id: check-case-conflict
-    - id: check-docstring-first
     - id: check-builtin-literals
+    - id: check-illegal-windows-names
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v1.16.0
+  rev: v2.7.0
   hooks:
     - id: setup-cfg-fmt
 
-- repo: https://github.com/dizballanze/gray
-  rev: v0.10.1
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.14.10
   hooks:
-    - id: gray
+    ###### Relevant part below ######
+    - id: ruff-check
+      types_or: [python, pyi]
+      args: ["check", "--select", "I", "--fix"]
+    ###### Relevant part above ######
+    - id: ruff-format
+      types_or: [python, pyi]

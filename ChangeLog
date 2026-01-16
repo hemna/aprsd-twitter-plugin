@@ -1,6 +1,16 @@
 CHANGES
 =======
 
+v0.5.0
+------
+
+* fixed pep8 error
+* fixed requirements.txt
+* Update for aprsd 3.0.0
+* Update for aprsd 2.7.0
+* remove trace
+* Create FUNDING.yml
+
 v0.3.0
 ------
 

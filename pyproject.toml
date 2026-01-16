@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "pbr"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aprsd_twitter_plugin"
+version = "0.0.0"  # Version managed by pbr
+description = "Python APRSD plugin to send tweets"
+readme = "README.rst"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Walter A. Boring IV", email = "waboring@hemna.com"}
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Communications :: Ham Radio",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "pbr",
+    "aprsd>=3.0.0",
+    "tweepy",
+    "oslo.config",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pip",
+    "pip-tools",
+    "bump2version",
+    "wheel",
+    "watchdog",
+    "ruff",
+    "tox",
+    "tox-uv",
+    "coverage",
+    "Sphinx",
+    "twine",
+    "pytest",
+    "gray",
+]
+
+[tool.setuptools]
+packages = ["aprsd_twitter_plugin"]
+
+[tool.setuptools.package-data]
+"*" = ["LICENSE"]
+
+[project.entry-points."oslo.config.opts"]
+    "aprsd_twitter_plugin.conf" = "aprsd_twitter_plugin.conf.opts:list_opts"  # type: ignore
+
+[project.entry-points."oslo.config.opts.defaults"]
+    "aprsd_twitter_plugin.conf" = "aprsd_twitter_plugin.conf.opts:defaults"  # type: ignore
+
+[tool.pbr]
+# PBR configuration
+
+[tool.mypy]
+ignore_missing_imports = true
+strict = true
+
+[tool.ruff]
+line-length = 99
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E203"]
+exclude = ["venv", ".venv", "__pycache__", "build", "dist"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
