@@ -1,6 +1,5 @@
 from oslo_config import cfg
 
-
 twitter_group = cfg.OptGroup(
     name="aprsd_twitter_plugin",
     title="APRSD Twitter Plugin settings",
@@ -10,17 +9,23 @@ twitter_opts = [
     cfg.StrOpt(
         "callsign",
         help="Callsign allowed to send tweets! "
-             "Any callsign starting with this will be allowed to tweet to"
-             "the configured twitter account.  "
-             "For example, if you set this to WB4BOR then any"
-             "callsign starting with WB4BOR will be allowed to tweet."
-             "This way WB4BOR-1 can tweet from this instance.",
+        "Any callsign starting with this will be allowed to tweet to"
+        "the configured twitter account.  "
+        "For example, if you set this to WB4BOR then any"
+        "callsign starting with WB4BOR will be allowed to tweet."
+        "This way WB4BOR-1 can tweet from this instance.",
+    ),
+    cfg.StrOpt(
+        "bearer_token",
+        help="Your twitter Bearer Token"
+        "Information for creating your api keys is here:  "
+        "https://developer.twitter.com/en/docs/authentication/oauth-2-0/authorization-code",
     ),
     cfg.StrOpt(
         "apiKey",
         help="Your twitter apiKey"
-             "Information for creating your api keys is here:  "
-             "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/api-key-and-secret",
+        "Information for creating your api keys is here:  "
+        "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/api-key-and-secret",
     ),
     cfg.StrOpt(
         "apiKey_secret",
@@ -41,9 +46,7 @@ twitter_opts = [
     ),
 ]
 
-ALL_OPTS = (
-    twitter_opts
-)
+ALL_OPTS = twitter_opts
 
 
 def register_opts(cfg):
