@@ -28,6 +28,7 @@ in this package. It is assumed that:
 
 import collections
 import importlib
+import importlib.util
 import os
 import pkgutil
 
@@ -78,3 +79,68 @@ def _append_config_options(imported_modules, config_options):
         configs = mod.list_opts()
         for key, val in configs.items():
             config_options[key].extend(val)
+
+
+def export_config(format="dict"):
+    """
+    Export configuration options as a simple data structure.
+
+    This function extracts configuration information from oslo_config
+    option objects and returns it in a simple dict or JSON format.
+    Works independently of aprsd installation.
+
+    Args:
+        format: Output format - 'dict' (default) or 'json'
+
+    Returns:
+        dict or JSON string containing all configuration options with:
+        - name: option name
+        - type: option type (StrOpt, BoolOpt, IntOpt, etc.)
+        - default: default value
+        - help: help text
+        - required: whether the option is required
+        - choices: list of valid choices (if applicable)
+        - secret: whether the option contains secret data (if applicable)
+        - min/max: min/max values for numeric types (if applicable)
+
+    Raises:
+        ImportError: if oslo_config is not installed
+    """
+    # Check if oslo_config is available
+    if importlib.util.find_spec("oslo_config") is None:
+        raise ImportError(
+            "oslo_config is required to export configuration. "
+            "Install it with: pip install oslo.config",
+        )
+
+    opts = list_opts()
+    result = {}
+
+    for group_name, opt_list in opts:
+        result[group_name] = []
+        for opt in opt_list:
+            opt_dict = {
+                "name": opt.name,
+                "type": type(opt).__name__,
+                "default": getattr(opt, "default", None),
+                "help": getattr(opt, "help", ""),
+                "required": not hasattr(opt, "default") or getattr(opt, "default", None) is None,
+            }
+
+            # Add additional attributes if available
+            if hasattr(opt, "choices") and opt.choices:
+                opt_dict["choices"] = list(opt.choices)
+            if hasattr(opt, "secret") and opt.secret:
+                opt_dict["secret"] = True
+            if hasattr(opt, "min") and opt.min is not None:
+                opt_dict["min"] = opt.min
+            if hasattr(opt, "max") and opt.max is not None:
+                opt_dict["max"] = opt.max
+
+            result[group_name].append(opt_dict)
+
+    if format == "json":
+        import json
+
+        return json.dumps(result, indent=2)
+    return result
