@@ -21,7 +21,6 @@ classifiers = [
 ]
 dependencies = [
     "pbr",
-    "aprsd>=3.0.0",
     "tweepy",
     "oslo.config",
 ]
