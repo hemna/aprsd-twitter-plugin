@@ -1,0 +1,16 @@
+tweepy
+oslo.config
+
+[dev]
+pip
+pip-tools
+wheel
+watchdog
+ruff
+tox
+tox-uv
+coverage
+Sphinx
+twine
+pytest
+aprsd
