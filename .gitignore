@@ -1,0 +1,23 @@
+# Local config with real credentials — never commit
+twitter.conf
+
+# Build / packaging
+*.egg-info/
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+.tox/
+.venv/
+venv/
+uv.lock
+
+# IDE
+.idea/
+.vscode/
+.cursor/
+*.iml
+
+# OS
+.DS_Store
