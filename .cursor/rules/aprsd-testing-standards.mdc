@@ -1,0 +1,175 @@
+---
+description: Testing standards for APRSD plugins and extensions
+globs: **/test_*.py
+alwaysApply: false
+---
+
+# APRSD Testing Standards
+
+## Test Organization
+
+- Place all tests in top-level `tests/` folder, not nested in module
+- Name test files `test_*.py`
+- Use pytest as the test framework
+- Create `tests/__init__.py` to make tests a package
+
+## Test Structure
+
+```python
+import pytest
+from aprsd import packets
+from unittest import mock
+
+from module_name import MyPlugin
+
+
+class TestMyPlugin:
+    """Test cases for MyPlugin."""
+
+    def setup_method(self):
+        """Setup test fixtures."""
+        self.plugin = MyPlugin()
+
+    def test_plugin_setup(self):
+        """Test plugin setup."""
+        self.plugin.setup()
+        # Assertions here
+
+    def test_plugin_process_success(self):
+        """Test successful message processing."""
+        # Create test packet
+        packet = packets.core.Packet(
+            from_call="TEST",
+            to_call="DEST",
+            message_text="test command",
+        )
+
+        result = self.plugin.process(packet)
+        assert result is not None
+
+    def test_plugin_process_error(self):
+        """Test error handling."""
+        # Test error cases
+        pass
+
+    @mock.patch("module_name.plugin.requests.get")
+    def test_external_api_call(self, mock_get):
+        """Test external API calls are mocked."""
+        mock_get.return_value.json.return_value = {"data": "test"}
+        # Test logic here
+```
+
+## Testing Best Practices
+
+### Mock External Dependencies
+
+- Always mock external API calls
+- Mock network requests using `unittest.mock` or `pytest-mock`
+- Don't make real network calls in tests
+
+```python
+@mock.patch("requests.get")
+def test_api_call(self, mock_get):
+    mock_get.return_value.json.return_value = {"result": "ok"}
+    # Test here
+```
+
+### Test Both Success and Failure Cases
+
+- Test happy path (successful operations)
+- Test error handling (exceptions, invalid input, etc.)
+- Test edge cases (empty strings, None values, etc.)
+
+### Use Fixtures
+
+```python
+@pytest.fixture
+def sample_packet():
+    """Create a sample test packet."""
+    return packets.core.Packet(
+        from_call="TEST",
+        to_call="DEST",
+        message_text="test",
+    )
+
+def test_with_fixture(sample_packet):
+    """Test using fixture."""
+    result = process(sample_packet)
+    assert result is not None
+```
+
+### Test Configuration
+
+Test that configuration is properly loaded:
+
+```python
+def test_config_loading(self):
+    """Test configuration options."""
+    from module_name.conf import main
+    opts = main.list_opts()
+    assert "my_plugin" in opts
+```
+
+## pytest Configuration
+
+Include in `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+norecursedirs = [
+    ".tox",
+    ".git",
+    "build",
+    "dist",
+    "*.egg-info",
+    ".venv",
+    "venv",
+]
+```
+
+## Coverage Configuration
+
+Include in `pyproject.toml`:
+
+```toml
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+```
+
+## Running Tests
+
+Tests should be runnable with:
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=module_name
+
+# Run specific test
+pytest tests/test_specific.py::TestClass::test_method
+```
+
+## What to Test
+
+- Plugin setup and initialization
+- Message processing logic
+- Configuration loading
+- Error handling
+- Helper functions
+- Thread creation (if applicable)
+- CLI commands

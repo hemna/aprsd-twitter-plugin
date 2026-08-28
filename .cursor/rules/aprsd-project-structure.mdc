@@ -1,0 +1,50 @@
+---
+description: Standard APRSD plugin/extension project structure
+alwaysApply: true
+---
+
+# APRSD Project Structure Standards
+
+All APRSD plugins and extensions must follow this structure:
+
+```
+project-name/
+├── module_name/
+│   ├── __init__.py
+│   ├── conf/
+│   │   ├── __init__.py
+│   │   ├── opts.py (standard oslo.config pattern)
+│   │   └── main.py
+│   ├── cli.py (for config export command)
+│   └── [plugin/extension files]
+├── tests/
+│   ├── __init__.py
+│   └── test_*.py
+├── docs/
+├── pyproject.toml
+├── setup.py
+├── tox.ini
+├── .pre-commit-config.yaml
+├── Makefile
+└── README.md or README.rst
+```
+
+## Key Rules
+
+- Always use underscores in module names (e.g., `aprsd_joke_plugin`, not `aprsd-joke-plugin`)
+- Place all configuration in `conf/` subdirectory within the module
+- Keep tests in top-level `tests/` folder, not nested in module
+- Use `.venv` for virtual environment
+- All plugins/extensions should have a `cli.py` for config export
+- Include both `pyproject.toml` and `setup.py` for maximum compatibility
+
+## Virtual Environment
+
+- Always use the virtual environment provided in the project called `.venv`
+- Never commit `.venv` to git
+
+## Documentation
+
+- Maintain docs in `docs/` directory
+- Use Sphinx for documentation generation
+- Keep README files up to date with plugin functionality

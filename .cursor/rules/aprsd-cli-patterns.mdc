@@ -1,0 +1,112 @@
+---
+description: CLI patterns for APRSD plugins and extensions
+globs: **/cli.py
+alwaysApply: false
+---
+
+# APRSD CLI Patterns
+
+## Config Export Command
+
+All plugins/extensions must provide a config export CLI command in `cli.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+CLI tool for module-name configuration export.
+"""
+
+import json
+import sys
+
+
+def export_config_cmd(format="json"):
+    """Export plugin configuration options."""
+    try:
+        from module_name.conf.opts import export_config
+
+        result = export_config(format=format)
+
+        if format == "json":
+            print(result)
+        else:
+            print(json.dumps(result, indent=2))
+
+        return 0
+    except ImportError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        print("\nTo export config, install oslo.config:", file=sys.stderr)
+        print("  pip install oslo.config", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error exporting config: {e}", file=sys.stderr)
+        return 1
+
+
+def main():
+    """Main entry point for CLI."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Export module-name configuration options"
+    )
+    parser.add_argument(
+        "--format",
+        choices=["dict", "json"],
+        default="json",
+        help="Output format (default: json)",
+    )
+
+    args = parser.parse_args()
+    sys.exit(export_config_cmd(format=args.format))
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## CLI Best Practices
+
+- Use argparse for command-line parsing
+- Provide clear help messages
+- Return appropriate exit codes (0 for success, non-zero for errors)
+- Write errors to stderr using `file=sys.stderr`
+- Handle ImportError gracefully with helpful messages
+- Include shebang `#!/usr/bin/env python3` at the top
+
+## Additional CLI Commands
+
+For extensions with additional commands, organize them in `cmds/` directory:
+
+```
+module_name/
+├── cli.py (config export)
+└── cmds/
+    ├── __init__.py
+    └── mycommand.py
+```
+
+Each command should:
+
+- Have a clear entry point function
+- Accept parsed arguments
+- Return proper exit codes
+- Log to appropriate streams
+- Handle errors gracefully
+
+## Entry Point Registration
+
+Register CLI commands in pyproject.toml:
+
+```toml
+[project.scripts]
+    "module-name-export-config" = "module_name.cli:main"
+    "module-name-mycommand" = "module_name.cmds.mycommand:main"
+```
+
+## Command Naming Convention
+
+- Use hyphenated names for commands (e.g., `aprsd-joke-plugin-export-config`)
+- Start with the module name
+- End with the action (e.g., `export-config`)
+- Keep names descriptive but concise

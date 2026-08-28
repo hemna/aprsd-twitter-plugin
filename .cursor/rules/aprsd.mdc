@@ -1,0 +1,21 @@
+---
+description: my rules for aprsd
+globs:
+alwaysApply: true
+---
+
+# Coding pattern preferences
+
+- Always prefer simple solutions
+- Avoid duplication of code wherever possible, which means checking for other areas of the codebase that might already have similar code and functionality
+- you are careful to only make changes that are requires or you are confident are well understood and related to the change being requested
+- when fixing an issue or bug, do not introduce a new patter or technology without first exhausting all options for the exhausting implementation. And if you finally do this, make sure to remove the old implementation afterwards so we don't have duplicate logic
+- keep the codebase very clean and organized
+- Avoid writing scripts in files if possible, especially if the script is likely only to be run once.
+- avoid having files over 200-300 lines of code. Refactor at that point.
+- Mocking data is only needed for tests, never mock data for dev or prod
+- Never add stubbing or fake data patterns to code that affects the dev or prod environments
+- never overwrite my .env file without first asking and confirming.
+- All threads should be done with APRSDThread base class
+- place all unit tests in the top level aprsd/tests folder
+- Always use the virtual environment provided in the project called .venv

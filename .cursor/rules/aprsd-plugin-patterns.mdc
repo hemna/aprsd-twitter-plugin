@@ -1,0 +1,129 @@
+---
+description: APRSD plugin development patterns and best practices
+globs: **/*_plugin.py
+alwaysApply: false
+---
+
+# APRSD Plugin Patterns
+
+## Plugin Base Class
+
+All plugins must inherit from `plugin.APRSDRegexCommandPluginBase`:
+
+```python
+from aprsd import plugin, packets
+from aprsd.utils import trace
+import logging
+
+LOG = logging.getLogger("APRSD")
+
+class MyPlugin(plugin.APRSDRegexCommandPluginBase):
+    """Plugin description goes here.
+
+    Explain what the plugin does, what commands it responds to,
+    and any special configuration needed.
+    """
+
+    version = module_name.__version__
+    command_regex = "^[cC]"  # Regex to match command
+    command_name = "mycommand"  # One-word command name
+    enabled = False
+```
+
+## Required Methods
+
+### setup()
+
+Initialize plugin and set `self.enabled` flag:
+
+```python
+def setup(self):
+    """Allows the plugin to do some 'setup' type checks.
+
+    If the setup checks fail, set self.enabled = False. This
+    will prevent the plugin from being called when packets are received.
+    """
+    self.enabled = CONF.my_plugin.enabled
+    # Additional setup checks here
+```
+
+### process()
+
+Must use `@trace.trace` decorator and accept `Packet`:
+
+```python
+@trace.trace
+def process(self, packet: packets.core.Packet):
+    """Process matching packet.
+
+    This is called when a received packet matches self.command_regex.
+    Only called when self.enabled = True.
+    """
+    if not self.enabled:
+        LOG.info("Plugin is not enabled")
+        return
+
+    message = packet.message_text
+
+    # Your logic here
+
+    return "response message"
+```
+
+### help()
+
+Return list of help strings:
+
+```python
+def help(self):
+    """Return help message for the plugin."""
+    return [
+        f"{self.command_name}: Description of what command does",
+        "Usage: command [options]",
+        "Additional help lines if needed"
+    ]
+```
+
+### create_threads()
+
+Return list of APRSDThread objects (or empty list):
+
+```python
+def create_threads(self):
+    """Create and return custom APRSDThread objects.
+
+    Create a child of aprsd.threads.APRSDThread object and return it.
+    It will automatically get started.
+    """
+    if self.enabled:
+        # return [MyAPRSDThread()]
+        return []
+```
+
+## Message Formatting
+
+- Wrap long messages using `textwrap.wrap(text, 67, break_long_words=False)`
+- APRS messages have a 67 character limit per line
+- Return strings or lists of strings from `process()`
+- Use `textwrap` module for proper text wrapping
+
+## Error Handling
+
+- Always wrap external API calls in try/except blocks
+- Log errors with `LOG.error()`
+- Return user-friendly error messages
+- Don't let exceptions bubble up from `process()`
+
+```python
+try:
+    result = external_api_call()
+except Exception as e:
+    LOG.error(f"Error calling API: {e}")
+    return "Error: Unable to fetch data"
+```
+
+## Logging
+
+- Use `LOG = logging.getLogger("APRSD")` at module level
+- Use appropriate log levels: DEBUG, INFO, WARNING, ERROR
+- Include context in log messages
