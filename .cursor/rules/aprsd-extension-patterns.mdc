@@ -1,0 +1,87 @@
+---
+description: APRSD extension development patterns
+globs: **/*extension.py
+alwaysApply: false
+---
+
+# APRSD Extension Patterns
+
+## Extension Base Class
+
+Extensions provide additional functionality to APRSD beyond message processing plugins.
+
+```python
+from aprsd import plugin
+
+class MyExtension(plugin.APRSDExtensionBase):
+    """Extension description.
+
+    Extensions can add web interfaces, commands, background services, etc.
+    """
+
+    version = module_name.__version__
+```
+
+## Common Extension Types
+
+### Web Extensions
+
+Extensions that add web interfaces (like aprsd-admin-extension, aprsd-webchat-extension):
+
+```python
+def setup(self):
+    """Setup the extension."""
+    self.enabled = CONF.my_extension.enabled
+
+def create_threads(self):
+    """Create web server or other background threads."""
+    if self.enabled:
+        return [MyWebServerThread()]
+    return []
+```
+
+### CLI Extensions
+
+Extensions that add CLI commands (like aprsd-trip-extension):
+
+- Add commands in `cmds/` directory
+- Register entry points in pyproject.toml
+- Follow Click or argparse patterns consistently
+
+### Background Service Extensions
+
+Extensions that run background services:
+
+- All threads must inherit from `APRSDThread` base class
+- Implement proper thread lifecycle methods
+- Handle graceful shutdown
+
+## Configuration Pattern
+
+Extensions should use oslo.config for configuration:
+
+```python
+from oslo_config import cfg
+
+extension_group = cfg.OptGroup(
+    name="my_extension",
+    title="My Extension Settings",
+)
+
+extension_opts = [
+    cfg.BoolOpt(
+        "enabled",
+        default=False,
+        help="Enable the extension",
+    ),
+]
+```
+
+## Entry Points
+
+Extensions must define entry points in pyproject.toml:
+
+```toml
+[project.entry-points."oslo.config.opts"]
+    "module_name.conf" = "module_name.conf.opts:list_opts"
+```

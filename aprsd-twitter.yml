@@ -1,0 +1,42 @@
+ham:
+  callsign: WB4BOR
+
+aprs:
+  login: WB4BOR-13
+  password: XXXXXXXXXX
+  host: noam.aprs2.net
+  port: 14580
+  logfile: /tmp/aprsd.log
+
+aprsd:
+  trace: True
+
+  watch_list:
+    enabled: False
+    alert_time_seconds: 9600
+    alert_callsign: WB4BOR
+    packet_keep_count: 25
+
+  web:
+    enabled: True
+    logging_enabled: False
+    host: '0.0.0.0'
+    port: 8013
+    users:
+      admin: XXXXXXXXXXX
+  email:
+    enabled: False
+
+  enabled_plugins:
+    - aprsd_twitter_plugin.twitter.SendTweetPlugin
+
+  units: imperial
+
+services:
+  aprs.fi:
+    apiKey: XXXXxxxXXXXXXXXXXxxXXxX
+  twitter:
+    apiKey: XXXXXXXXXXXXXXXXXXXXXXXXx
+    apiKey_secret: XXXXXXXxxxxxxxxXXXXXXxXXxXxXxXxXxXxXxXxXxXxXXxXxXxXx
+    access_token: XXXXXxxxXXXXxXxXxXXXXxXxXXxXxXXxXxXxxXxXxXxxXxXxXxXx
+    access_token_secret: XXXxxxXxXXXXxXxXxXXxXxXxxXxXxXXxXxXXxXxXxXXxxxXxxx
