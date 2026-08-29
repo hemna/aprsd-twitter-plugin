@@ -40,6 +40,11 @@ dev = [
     "aprsd",
 ]
 
+[project.urls]
+"Homepage" = "http://git.hemna.com/hemna/aprsd-twitter-plugin"
+"Bug Reports" = "http://git.hemna.com/hemna/aprsd-twitter-plugin/issues"
+"Source" = "http://git.hemna.com/hemna/aprsd-twitter-plugin"
+
 [tool.setuptools]
 packages = ["aprsd_twitter_plugin"]
 
