@@ -2,47 +2,44 @@ from oslo_config import cfg
 
 twitter_group = cfg.OptGroup(
     name="aprsd_twitter_plugin",
-    title="APRSD Twitter Plugin settings",
+    title="APRSD X (Twitter) Plugin settings",
 )
 
 twitter_opts = [
     cfg.StrOpt(
         "callsign",
-        help="Callsign allowed to send tweets! "
-        "Any callsign starting with this will be allowed to tweet to"
-        "the configured twitter account.  "
-        "For example, if you set this to WB4BOR then any"
-        "callsign starting with WB4BOR will be allowed to tweet."
-        "This way WB4BOR-1 can tweet from this instance.",
-    ),
-    cfg.StrOpt(
-        "bearer_token",
-        help="Your twitter Bearer Token"
-        "Information for creating your api keys is here:  "
-        "https://developer.twitter.com/en/docs/authentication/oauth-2-0/authorization-code",
+        help=(
+            "Callsign allowed to post to X. "
+            "Any callsign starting with this value will be allowed to post. "
+            "For example, setting WB4BOR allows WB4BOR-1, WB4BOR-9, etc."
+        ),
     ),
     cfg.StrOpt(
         "apiKey",
-        help="Your twitter apiKey"
-        "Information for creating your api keys is here:  "
-        "https://developer.twitter.com/en/docs/authentication/oauth-1-0a/api-key-and-secret",
+        help=(
+            "Your X (Twitter) API Key (Consumer Key). "
+            "Obtain from https://developer.x.com/en/portal/dashboard"
+        ),
     ),
     cfg.StrOpt(
         "apiKey_secret",
-        help="Your twitter accounts apikey secret.",
+        help="Your X (Twitter) API Key Secret (Consumer Secret).",
     ),
     cfg.StrOpt(
         "access_token",
-        help="The twitter access_token for your Twitter account",
+        help=(
+            "The X (Twitter) Access Token for your account. "
+            "Generate under 'Keys and tokens' in the developer portal."
+        ),
     ),
     cfg.StrOpt(
         "access_token_secret",
-        help="The twitter access token secret for your Twitter account",
+        help="The X (Twitter) Access Token Secret for your account.",
     ),
     cfg.BoolOpt(
         "add_aprs_hashtag",
         default=True,
-        help="Automatically add #aprs hash tag to every tweet?",
+        help="Automatically add #aprs #aprsd #hamradio hashtags to every post.",
     ),
 ]
 
