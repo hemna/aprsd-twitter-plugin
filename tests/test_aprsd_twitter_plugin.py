@@ -6,7 +6,25 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+import aprsd_twitter_plugin
 from aprsd_twitter_plugin.twitter import SendTweetPlugin
+
+
+class TestVersion:
+    """Tests for package version metadata."""
+
+    def test_version_is_set(self):
+        """__version__ must be a non-empty string."""
+        assert isinstance(aprsd_twitter_plugin.__version__, str)
+        assert len(aprsd_twitter_plugin.__version__) > 0
+
+    def test_version_not_unknown(self):
+        """Version must not be 'unknown' when installed via pip install -e ."""
+        # When installed with setuptools-scm and a git tag the version is
+        # derived from the tag.  'unknown' means the package could not be found
+        # in the metadata at all — that should never happen for an editable
+        # install.
+        assert aprsd_twitter_plugin.__version__ != "unknown"
 
 
 @pytest.fixture
