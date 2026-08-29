@@ -1,11 +1,7 @@
-Send tweet via Ham RADIO!
-=========================
+Post to X (formerly Twitter) via Ham Radio APRS!
+=================================================
 
-|PyPI| |Status| |Python Version| |License|
-
-|Read the Docs| |Tests| |Codecov|
-
-|pre-commit|
+|PyPI| |Status| |Python Version| |License| |pre-commit|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/aprsd-twitter-plugin.svg
    :target: https://pypi.org/project/aprsd-twitter-plugin/
@@ -19,98 +15,172 @@ Send tweet via Ham RADIO!
 .. |License| image:: https://img.shields.io/pypi/l/aprsd-twitter-plugin
    :target: https://opensource.org/licenses/MIT
    :alt: License
-.. |Read the Docs| image:: https://img.shields.io/readthedocs/aprsd-twitter-plugin/latest.svg?label=Read%20the%20Docs
-   :target: https://aprsd-twitter-plugin.readthedocs.io/
-   :alt: Read the documentation at https://aprsd-twitter-plugin.readthedocs.io/
-.. |Tests| image:: https://github.com/hemna/aprsd-twitter-plugin/workflows/Tests/badge.svg
-   :target: https://github.com/hemna/aprsd-twitter-plugin/actions?workflow=Tests
-   :alt: Tests
-.. |Codecov| image:: https://codecov.io/gh/hemna/aprsd-twitter-plugin/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/hemna/aprsd-twitter-plugin
-   :alt: Codecov
 .. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
 
 
+Overview
+--------
+
+``aprsd-twitter-plugin`` is an `APRSD <https://github.com/craigerl/aprsd>`_
+plugin that lets a licensed amateur radio operator post to X (formerly Twitter)
+directly from a radio by sending an APRS message.
+
+Send ``tw Hello from the shack! #hamradio`` over APRS and it appears on X.
+
+.. note::
+
+   **A paid X developer account is required.**  X ended free API v1.1 write
+   access in February 2023.  You need at least the **Basic** tier on the
+   `X Developer Portal <https://developer.x.com/en/portal/dashboard>`_ to
+   obtain write-capable OAuth 1.0a credentials.  Read access (and therefore
+   read-only bearer tokens) is not sufficient — this plugin posts tweets.
+
+
 Features
 --------
 
-* Sent a tweet from your personal twitter account!
-* to tweet send a message of "t Hello World #aprs #hamradio"
+* Post to X from any APRS client — HT, mobile rig, Winlink, APRS.fi, etc.
+* Only a configurable callsign (and its SSIDs) is authorised to post.
+* Optionally appends ``#aprs #aprsd #hamradio`` and the project URL to every
+  post.
+* Uses the **X API v2** via ``tweepy.Client`` — the only supported API for
+  write access since 2023.
 
 
 Requirements
 ------------
 
-* This plugin requires you have a twitter account and create a developer
-  account with:
-* api key
-* api key secret
-* access token
-* access token secret
+* Python 3.9 or later
+* `APRSD <https://github.com/craigerl/aprsd>`_ (installed separately)
+* `tweepy <https://www.tweepy.org/>`_ >= 4.0
+* A **paid X developer account** with an app that has *read + write*
+  OAuth 1.0a permissions
 
-Add the following entries to the aprsd.yml file
+Credentials needed
+~~~~~~~~~~~~~~~~~~
 
-.. code:: yaml
+From the `X Developer Portal → Keys and tokens
+<https://developer.x.com/en/portal/dashboard>`_ for your app:
 
-    services:
-      twitter:
-        apiKey: <your api key here>
-        apiKey_secret: <your api key secret here>
-        access_token: <your Twitter app access token>
-        access_token_secret: <your Twitter app access token secret>
++------------------------------+----------------------------------------------+
+| Config key                   | Where to find it                             |
++==============================+==============================================+
+| ``apiKey``                   | *API Key* (Consumer Key)                     |
++------------------------------+----------------------------------------------+
+| ``apiKey_secret``            | *API Key Secret* (Consumer Secret)           |
++------------------------------+----------------------------------------------+
+| ``access_token``             | *Access Token* (generate under Keys/Tokens)  |
++------------------------------+----------------------------------------------+
+| ``access_token_secret``      | *Access Token Secret*                        |
++------------------------------+----------------------------------------------+
+
+.. important::
+
+   Make sure the app's **User authentication settings** are set to
+   *Read and Write* (not just *Read*).  Without write permissions the plugin
+   will return ``Failed: no write permission``.
 
 
 Installation
 ------------
-
-You can install *Send tweet via Ham RADIO!* via pip_ from PyPI_:
 
 .. code:: console
 
    $ pip install aprsd-twitter-plugin
 
 
+Configuration
+-------------
+
+Add an ``aprsd_twitter_plugin`` section to your ``aprsd.yml``:
+
+.. code:: yaml
+
+    aprsd_twitter_plugin:
+      # Callsign allowed to post.  Any SSID of this callsign is also allowed
+      # (e.g. WB4BOR-1, WB4BOR-9).
+      callsign: WB4BOR
+
+      # OAuth 1.0a credentials — obtain from developer.x.com
+      apiKey: <your API Key / Consumer Key>
+      apiKey_secret: <your API Key Secret / Consumer Secret>
+      access_token: <your Access Token>
+      access_token_secret: <your Access Token Secret>
+
+      # Set false to suppress automatic hashtag/URL appending (default: true)
+      add_aprs_hashtag: true
+
+.. warning::
+
+   Never commit your credentials to version control.  Keep ``aprsd.yml``
+   out of git (add it to ``.gitignore``).
+
+
 Usage
 -----
 
-Please see the `Command-line Reference <Usage_>`_ for details.
+From your APRS client send a message to your APRSD station:
+
+.. code::
+
+   tw <your message here>
+
+   # or
+   twitter <your message here>
+
+Examples::
+
+   tw Hello from the ham shack! Grid DM79
+   tw Just worked JA on 20m SSB #hamradio
+
+With ``add_aprs_hashtag: true`` (default) the plugin automatically appends::
+
+   #aprs #aprsd #hamradio http://git.hemna.com/hemna/aprsd-twitter-plugin
+
+Keep your total message under 280 characters to avoid truncation by X.
+
+**Response messages**
+
++------------------------------------------+-----------------------------+
+| Plugin response                          | Meaning                     |
++==========================================+=============================+
+| ``Post sent!``                           | Success                     |
++------------------------------------------+-----------------------------+
+| ``<CALLSIGN> not authorized to post!``   | Sender not in allow-list    |
++------------------------------------------+-----------------------------+
+| ``Failed: no write permission``          | App lacks write permissions |
++------------------------------------------+-----------------------------+
+| ``Failed to post``                       | Other X API error           |
++------------------------------------------+-----------------------------+
+| ``Failed to create client``              | Credential/config error     |
++------------------------------------------+-----------------------------+
 
 
 Contributing
 ------------
 
-Contributions are very welcome.
-To learn more, see the `Contributor Guide`_.
+Contributions are welcome!
+
+* Source: http://git.hemna.com/hemna/aprsd-twitter-plugin
+* Issues: http://git.hemna.com/hemna/aprsd-twitter-plugin/issues
+
+To set up a development environment::
+
+   git clone ssh://git@git.hemna.com:222/hemna/aprsd-twitter-plugin.git
+   cd aprsd-twitter-plugin
+   pip install -e ".[dev]"
+   pre-commit install
+
+Run the test suite::
+
+   pytest tests/ -v
 
 
 License
 -------
 
-Distributed under the terms of the `MIT license`_,
-*Send tweet via Ham RADIO!* is free and open source software.
+Distributed under the terms of the `MIT License`_.
 
-
-Issues
-------
-
-If you encounter any problems,
-please `file an issue`_ along with a detailed description.
-
-
-Credits
--------
-
-This project was generated from `@hemna`_'s `APRSD Plugin Python Cookiecutter`_ template.
-
-.. _@hemna: https://github.com/hemna
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _MIT license: https://opensource.org/licenses/MIT
-.. _PyPI: https://pypi.org/
-.. _APRSD Plugin Python Cookiecutter: https://github.com/hemna/cookiecutter-aprsd-plugin
-.. _file an issue: https://github.com/hemna/aprsd-twitter-plugin/issues
-.. _pip: https://pip.pypa.io/
-.. github-only
-.. _Contributor Guide: CONTRIBUTING.rst
-.. _Usage: https://aprsd-twitter-plugin.readthedocs.io/en/latest/usage.html
+.. _MIT License: https://opensource.org/licenses/MIT
