@@ -163,12 +163,12 @@ Contributing
 
 Contributions are welcome!
 
-* Source: http://git.hemna.com/hemna/aprsd-twitter-plugin
-* Issues: http://git.hemna.com/hemna/aprsd-twitter-plugin/issues
+* Source: https://github.com/hemna/aprsd-twitter-plugin
+* Issues: https://github.com/hemna/aprsd-twitter-plugin/issues
 
 To set up a development environment::
 
-   git clone ssh://git@git.hemna.com:222/hemna/aprsd-twitter-plugin.git
+   git clone https://github.com/hemna/aprsd-twitter-plugin.git
    cd aprsd-twitter-plugin
    pip install -e ".[dev]"
    pre-commit install
