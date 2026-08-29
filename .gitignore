@@ -21,3 +21,8 @@ uv.lock
 
 # OS
 .DS_Store
+
+# Local project files not for version control
+.github/copilot-instructions.md
+Makefile.venv
+aprsd-twitter.yml
