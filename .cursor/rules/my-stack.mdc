@@ -1,9 +1,0 @@
----
-description: This is the project's tech stack
-globs:
-alwaysApply: true
----
-
-# Technical stack
-- Python
-- Python tests
