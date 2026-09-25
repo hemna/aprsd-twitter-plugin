@@ -54,9 +54,6 @@ packages = ["aprsd_twitter_plugin"]
 [project.entry-points."oslo.config.opts"]
     "aprsd_twitter_plugin.conf" = "aprsd_twitter_plugin.conf.opts:list_opts"  # type: ignore
 
-[project.entry-points."oslo.config.opts.defaults"]
-    "aprsd_twitter_plugin.conf" = "aprsd_twitter_plugin.conf.opts:defaults"  # type: ignore
-
 [project.scripts]
     "aprsd-twitter-plugin-export-config" = "aprsd_twitter_plugin.cli:main"
 
